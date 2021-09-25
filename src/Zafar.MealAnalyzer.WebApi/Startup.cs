@@ -1,4 +1,6 @@
+using FluentValidation.AspNetCore;
 using MealAnalyzer.Core.Abstractions;
+using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -10,7 +12,9 @@ using System;
 using System.IO;
 using System.Reflection;
 using Zafar.MealAnalyzer.Core.Abstractions;
+using Zafar.MealAnalyzer.Core.Helpers;
 using Zafar.MealAnalyzer.Core.Implementations;
+using Zafar.MealAnalyzer.Core.QueryHandlers;
 
 namespace Zafar.MealAnalyzer.WebApi
 {
@@ -26,15 +30,29 @@ namespace Zafar.MealAnalyzer.WebApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(options =>
+            {
+                options.AddPolicy("CorsPolicy",
+                builder => builder
+                .AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader());
+            });
+            services.AddDistributedMemoryCache();
             services.AddSwaggerGenNewtonsoftSupport();
+
             services.AddScoped<IDataReader, JsonDataReader>();
             services.AddScoped<IMealAnalyzer, MealAnalyzerService>();
             services.AddScoped<ICacheHelper, CacheHelper>();
+            services.AddMediatR(typeof(MealAnalyzeQueryHandler).GetTypeInfo().Assembly);
+            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(CachingBehavior<,>));
+
             services.AddControllers()
                     .AddNewtonsoftJson(o =>
             {
                 o.SerializerSettings.Converters.Add(new StringEnumConverter());
-            });
+            })
+             .AddFluentValidation(v => v.RegisterValidatorsFromAssemblyContaining<Startup>()); ;
 
             services.AddSwaggerGen(c =>
             {
@@ -48,6 +66,8 @@ namespace Zafar.MealAnalyzer.WebApi
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseCors("CorsPolicy");
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

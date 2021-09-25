@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Zafar.MealAnalyzer.Core.Abstractions;
 using Zafar.MealAnalyzer.Core.Helpers;
 using Zafar.MealAnalyzer.Core.Models;
@@ -23,10 +21,10 @@ namespace Zafar.MealAnalyzer.Core.Implementations
 
             return dto.UserType switch
             {
-                UserType.ACTIVE => GetActiveUsers(dto, meals),
-                UserType.SUPERACTIVE => GetActiveUsers(dto, meals),
+                UserType.ACTIVE => meals.ApplyActiveThreshold(dto),
+                UserType.SUPERACTIVE => meals.ApplyActiveThreshold(dto),
                 UserType.BORED => meals.ApplyBoredFilter(dto),
-                _ => default,
+                _ => throw new ArgumentException("Invalid User Type"),
             };
         }
 
@@ -34,19 +32,6 @@ namespace Zafar.MealAnalyzer.Core.Implementations
         {
             var analyzedMeals = this.GetAnalyzedMeals(dto);
             return string.Join(',', analyzedMeals.Select(x => x.UserId));
-        }
-
-        private static IEnumerable<MealCounterViewModel> GetActiveUsers(MealAnalyzerQueryDto dto, IEnumerable<MealViewModel> meals)
-        {
-            IEnumerable<MealCounterViewModel> filteredMeals = meals.ApplyPrimaryFilter(dto);
-
-            return dto.UserType switch
-            {
-                UserType.ACTIVE => filteredMeals.ApplyActiveFilter(),
-                UserType.SUPERACTIVE => filteredMeals.ApplySuperActiveFilter(),
-                UserType.BORED => new List<MealCounterViewModel>(),
-                _ => new List<MealCounterViewModel>(),
-            };
         }
     }
 }

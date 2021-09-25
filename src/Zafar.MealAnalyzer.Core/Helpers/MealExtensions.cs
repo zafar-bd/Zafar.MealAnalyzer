@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Zafar.MealAnalyzer.Core.Models;
 
 namespace Zafar.MealAnalyzer.Core.Helpers
@@ -46,6 +43,19 @@ namespace Zafar.MealAnalyzer.Core.Helpers
              .ToList();
 
             return activeUsersInThePrecedingPeriod.Except(activeThresholdMeals).ToList();
+        }
+
+        public static IEnumerable<MealCounterViewModel> ApplyActiveThreshold(this IEnumerable<MealViewModel> meals, MealAnalyzerQueryDto dto)
+        {
+            IEnumerable<MealCounterViewModel> filteredMeals = meals.ApplyPrimaryFilter(dto);
+
+            return dto.UserType switch
+            {
+                UserType.ACTIVE => filteredMeals.ApplyActiveFilter(),
+                UserType.SUPERACTIVE => filteredMeals.ApplySuperActiveFilter(),
+                UserType.BORED => new List<MealCounterViewModel>(),
+                _ => new List<MealCounterViewModel>(),
+            };
         }
     }
 }

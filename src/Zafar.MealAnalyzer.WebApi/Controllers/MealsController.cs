@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using MediatR;
+using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using Zafar.MealAnalyzer.Core.Abstractions;
 using Zafar.MealAnalyzer.Core.Models;
+using Zafar.MealAnalyzer.Core.QueryHandlers;
 
 namespace Zafar.MealAnalyzer.WebApi.Controllers
 {
@@ -9,11 +11,10 @@ namespace Zafar.MealAnalyzer.WebApi.Controllers
     [ApiController]
     public class MealsController : ControllerBase
     {
-        private readonly IMealAnalyzer _dataReader;
-
-        public MealsController(IMealAnalyzer dataReader)
+        private readonly IMediator _mediator;
+        public MealsController(IMediator dataReader)
         {
-            this._dataReader = dataReader;
+            this._mediator = dataReader;
         }
         /// <summary>
         /// Get Analyzed meals
@@ -23,8 +24,16 @@ namespace Zafar.MealAnalyzer.WebApi.Controllers
         [HttpGet]
         public async Task<ActionResult> Get([FromQuery] MealAnalyzerQueryDto dto)
         {
-            var data = _dataReader.GetAnalyzedUserId(dto);
-            return Ok(data);
+            var userId = await _mediator.Send(new MealAnalyzeQuery
+            {
+                Cacheable = true,
+                StartDate = dto.StartDate,
+                EndDate = dto.EndDate,
+                UserType = dto.UserType,
+                CacheKey = $"{dto.StartDate}-{dto.EndDate}-{dto.UserType}"
+            });
+
+            return Ok(userId);
         }
     }
 }

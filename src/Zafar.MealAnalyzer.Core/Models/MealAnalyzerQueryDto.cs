@@ -7,7 +7,6 @@ namespace Zafar.MealAnalyzer.Core.Models
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public UserType UserType { get; set; }
-        public bool Cachable { get; set; } = true;
     }
 
     public enum UserType : uint
