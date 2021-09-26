@@ -35,7 +35,7 @@ namespace MealAnalyzer.Core.Abstractions
             foreach (CalendarViewModel calendar in calendars)
             {
                 foreach (KeyValuePair<string, DaysDetailViewModel> details in calendar.DaysWithDetails)
-                {
+                 {
                     MealViewModel meal = new()
                     {
                         Date = details.Value.Day.Date,

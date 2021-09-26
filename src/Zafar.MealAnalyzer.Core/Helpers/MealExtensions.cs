@@ -4,8 +4,15 @@ using Zafar.MealAnalyzer.Core.Models;
 
 namespace Zafar.MealAnalyzer.Core.Helpers
 {
+
     public static class MealExtensions
     {
+        /// <summary>
+        /// Apply date range filter
+        /// </summary>
+        /// <param name="meals"></param>
+        /// <param name="dto"></param>
+        /// <returns></returns>
         public static IEnumerable<MealCounterViewModel> ApplyPrimaryFilter(this IEnumerable<MealViewModel> meals, MealAnalyzerQueryDto dto)
         => meals.Where(a => a.Date.Date >= dto.StartDate.Date
                          && a.Date.Date <= dto.EndDate.Date)
@@ -16,13 +23,29 @@ namespace Zafar.MealAnalyzer.Core.Helpers
                     MealCount = (uint)a.Sum(b => b.MealCount)
                 });
 
+        /// <summary>
+        /// Apply Active ( >=5 meals ), super active ( >10 meals ) range
+        /// </summary>
+        /// <param name="meals"></param>
+        /// <returns></returns>
         public static IEnumerable<MealCounterViewModel> ApplyActiveFilter(this IEnumerable<MealCounterViewModel> meals)
         => meals.Where(a => a.MealCount >= (uint)UserType.ACTIVE
                          && a.MealCount <= (uint)UserType.SUPERACTIVE);
 
+        /// <summary>
+        /// Apply super active ( >10 meals ) range
+        /// </summary>
+        /// <param name="meals"></param>
+        /// <returns></returns>
         public static IEnumerable<MealCounterViewModel> ApplySuperActiveFilter(this IEnumerable<MealCounterViewModel> meals)
          => meals.Where(a => a.MealCount >= (uint)UserType.SUPERACTIVE);
 
+        /// <summary>
+        ///  “active” in the preceding period, but didn’t make the “active” threshold in the specified period.
+        /// </summary>
+        /// <param name="meals"></param>
+        /// <param name="dto"></param>
+        /// <returns></returns>
         public static IEnumerable<MealCounterViewModel> ApplyBoredFilter(this IEnumerable<MealViewModel> meals, MealAnalyzerQueryDto dto)
         {
             IEnumerable<MealCounterViewModel> filteredMeals = meals.ApplyPrimaryFilter(dto);
@@ -42,9 +65,16 @@ namespace Zafar.MealAnalyzer.Core.Helpers
              .Where(a => a.MealCount >= (uint)UserType.ACTIVE)
              .ToList();
 
-            return activeUsersInThePrecedingPeriod.Except(activeThresholdMeals).ToList();
+            var boredUsers = activeUsersInThePrecedingPeriod.Except(activeThresholdMeals, new MealComparer()).ToList();
+            return boredUsers;
         }
 
+        /// <summary>
+        /// Get Active ( >=5 meals ), super active ( >10 meals ) range
+        /// </summary>
+        /// <param name="meals"></param>
+        /// <param name="dto"></param>
+        /// <returns></returns>
         public static IEnumerable<MealCounterViewModel> ApplyActiveThreshold(this IEnumerable<MealViewModel> meals, MealAnalyzerQueryDto dto)
         {
             IEnumerable<MealCounterViewModel> filteredMeals = meals.ApplyPrimaryFilter(dto);

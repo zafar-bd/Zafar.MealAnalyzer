@@ -31,7 +31,7 @@ namespace Zafar.MealAnalyzer.Core.Implementations
         public string GetAnalyzedUserId(MealAnalyzerQueryDto dto)
         {
             var analyzedMeals = this.GetAnalyzedMeals(dto);
-            return string.Join(',', analyzedMeals.Select(x => x.UserId));
+            return string.Join(',', analyzedMeals.OrderByDescending(o => o.MealCount).ThenBy(o => o.UserId).Select(x => x.UserId));
         }
     }
 }
