@@ -4,7 +4,6 @@ using Zafar.MealAnalyzer.Core.Models;
 
 namespace Zafar.MealAnalyzer.Core.Helpers
 {
-
     public static class MealExtensions
     {
         /// <summary>
