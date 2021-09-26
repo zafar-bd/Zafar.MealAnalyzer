@@ -1,3 +1,6 @@
+All the codebase and source files are in src folder
+The json files are in this path: /src/Zafar.MealAnalyzer.WebApi/wwwroot/Data
+
 1.	This Application can be run with IIS/Kestrel
 2.	REST API can be tested with Open API Documentation (swagger) or PostMan
 3.  Swagger Endpoint will be open after run
