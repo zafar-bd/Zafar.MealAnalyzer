@@ -59,7 +59,18 @@ namespace Zafar.MealAnalyzer.WebApi
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 c.IncludeXmlComments(xmlPath);
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Meal Analyzer WebApi", Version = "v1" });
+                c.SwaggerDoc("v1", new
+                    OpenApiInfo
+                {
+                    Title = "Meal Analyzer WebApi",
+                    Version = "v1",
+                    Contact = new OpenApiContact
+                    {
+                        Name = "Md Abu Zafar",
+                        Email = "mazafar.bd@gmail.com",
+                        Url = new Uri("https://www.linkedin.com/in/abu-zafar")
+                    }
+                });
             });
         }
 
@@ -74,7 +85,6 @@ namespace Zafar.MealAnalyzer.WebApi
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Meal Analyzer WebApi v1"));
             }
-
             app.UseRouting();
 
             app.UseAuthorization();
