@@ -43,11 +43,11 @@ namespace Zafar.MealAnalyzer.WebApi
             services.AddDistributedMemoryCache();
             services.AddSwaggerGenNewtonsoftSupport();
 
-            services.AddTransient<ActiveUserAnalyzer>();
-            services.AddTransient<SuperActiveUserAnalyzer>();
-            services.AddTransient<BoredUserAnalyzer>();
+            services.AddScoped<ActiveUserAnalyzer>();
+            services.AddScoped<SuperActiveUserAnalyzer>();
+            services.AddScoped<BoredUserAnalyzer>();
 
-            services.AddTransient<UserAnalyzeServiceResolver>(provider => userType =>
+            services.AddScoped<UserAnalyzeServiceResolver>(provider => userType =>
             {
                 return userType switch
                 {
@@ -61,7 +61,7 @@ namespace Zafar.MealAnalyzer.WebApi
             services.AddScoped<IDataReader, JsonDataReader>();
             services.AddScoped<ICacheHelper, CacheHelper>();
             services.AddMediatR(typeof(MealAnalyzeQueryHandler).GetTypeInfo().Assembly);
-            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(CachingBehavior<,>));
+            services.AddScoped(typeof(IPipelineBehavior<,>), typeof(CachingBehavior<,>));
 
             services.AddControllers()
                     .AddNewtonsoftJson(o =>
