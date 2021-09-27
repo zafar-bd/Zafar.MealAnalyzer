@@ -50,8 +50,7 @@ namespace Zafar.MealAnalyzer.Core.Helpers
             IEnumerable<MealCounterViewModel> filteredMeals = meals.ApplyPrimaryFilter(dto);
 
             var activeThresholdMeals = filteredMeals
-                             .Where(a => a.MealCount >= (uint)UserType.ACTIVE)
-                             .ToList();
+                             .Where(a => a.MealCount >= (uint)UserType.ACTIVE);
 
             var activeUsersInThePrecedingPeriod = meals
              .Where(a => a.Date.Date < dto.StartDate.Date)
@@ -61,10 +60,9 @@ namespace Zafar.MealAnalyzer.Core.Helpers
                  UserId = a.Key,
                  MealCount = (uint)a.Sum(b => b.MealCount)
              })
-             .Where(a => a.MealCount >= (uint)UserType.ACTIVE)
-             .ToList();
+             .Where(a => a.MealCount >= (uint)UserType.ACTIVE);
 
-            var boredUsers = activeUsersInThePrecedingPeriod.Except(activeThresholdMeals, new MealComparer()).ToList();
+            var boredUsers = activeUsersInThePrecedingPeriod.Except(activeThresholdMeals, new MealComparer());
             return boredUsers;
         }
 

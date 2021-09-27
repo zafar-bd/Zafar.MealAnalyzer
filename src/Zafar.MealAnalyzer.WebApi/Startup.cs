@@ -9,11 +9,13 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Converters;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using Zafar.MealAnalyzer.Core.Abstractions;
 using Zafar.MealAnalyzer.Core.Helpers;
 using Zafar.MealAnalyzer.Core.Implementations;
+using Zafar.MealAnalyzer.Core.Models;
 using Zafar.MealAnalyzer.Core.QueryHandlers;
 
 namespace Zafar.MealAnalyzer.WebApi
@@ -41,8 +43,22 @@ namespace Zafar.MealAnalyzer.WebApi
             services.AddDistributedMemoryCache();
             services.AddSwaggerGenNewtonsoftSupport();
 
+            services.AddTransient<ActiveUserAnalyzer>();
+            services.AddTransient<SuperActiveUserAnalyzer>();
+            services.AddTransient<BoredUserAnalyzer>();
+
+            services.AddTransient<UserAnalyzeServiceResolver>(provider => userType =>
+            {
+                return userType switch
+                {
+                    UserType.ACTIVE => provider.GetService<ActiveUserAnalyzer>(),
+                    UserType.SUPERACTIVE => provider.GetService<SuperActiveUserAnalyzer>(),
+                    UserType.BORED => provider.GetService<BoredUserAnalyzer>(),
+                    _ => throw new KeyNotFoundException(),
+                };
+            });
+
             services.AddScoped<IDataReader, JsonDataReader>();
-            services.AddScoped<IMealAnalyzer, MealAnalyzerService>();
             services.AddScoped<ICacheHelper, CacheHelper>();
             services.AddMediatR(typeof(MealAnalyzeQueryHandler).GetTypeInfo().Assembly);
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(CachingBehavior<,>));
